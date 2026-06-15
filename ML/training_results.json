@@ -1,0 +1,78 @@
+{
+  "timestamp": "2026-06-04T10:56:07.989745",
+  "dataset": {
+    "total_samples": 500,
+    "train_samples": 400,
+    "test_samples": 100,
+    "feature_count": 9,
+    "classes": 3,
+    "class_distribution": {
+      "0": 305,
+      "2": 100,
+      "1": 95
+    }
+  },
+  "models": {
+    "random_forest": {
+      "version": "1.0",
+      "accuracy": 1.0,
+      "f1_score": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "cv_mean": 1.0,
+      "cv_std": 0.0,
+      "n_estimators": 200,
+      "max_depth": 15,
+      "feature_importance": {
+        "Attendance_Rate": 0.18447842002152368,
+        "Absences": 0.19829845680891472,
+        "Late_Arrivals": 0.2607981186931042,
+        "Avg_Working_Hours": 0.10451592933719189,
+        "Leave_Frequency": 0.06442195142815117,
+        "Mon_Fri_Late_Trend": 0.07183943134165159,
+        "Absence_Variance": 0.004581390364161839,
+        "Recent_Trend": 0.013508263905912225,
+        "Punctuality_Score": 0.09755803809938873
+      }
+    },
+    "gradient_boosting": {
+      "version": "2.0",
+      "accuracy": 1.0,
+      "f1_score": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "cv_mean": 1.0,
+      "cv_std": 0.0,
+      "n_estimators": 200,
+      "learning_rate": 0.1,
+      "feature_importance": {
+        "Attendance_Rate": 0.3835219983105811,
+        "Absences": 0.22015774435768415,
+        "Late_Arrivals": 0.3232161128551399,
+        "Avg_Working_Hours": 0.028615975208972994,
+        "Leave_Frequency": 0.0004322255371791755,
+        "Mon_Fri_Late_Trend": 0.022295307354230402,
+        "Absence_Variance": 2.0457986063424937e-06,
+        "Recent_Trend": 0.00015087087617897318,
+        "Punctuality_Score": 0.021607719701427084
+      }
+    },
+    "ensemble": {
+      "version": "2.0",
+      "accuracy": 1.0,
+      "f1_score": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "method": "voting",
+      "estimators": [
+        "random_forest",
+        "gradient_boosting"
+      ]
+    }
+  },
+  "best_model": {
+    "name": "ensemble",
+    "accuracy": 1.0,
+    "recommendation": "Use ensemble model for production (best accuracy and generalization)"
+  }
+}

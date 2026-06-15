@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Enhanced Employee Attendance Management System</title>
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Toast Container for Real-time alerts -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- App Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">AI</div>
+      <div class="brand-title">SmartAttendance</div>
+    </div>
+    
+    <!-- Profile & Logout Panel (Hidden on Auth Screen) -->
+    <div id="userProfileNav" class="user-nav-profile hidden">
+      <div class="ws-status-bar">
+        <span id="wsStatusDot" class="status-dot offline"></span>
+        <span id="wsStatusText" class="ws-status-text">Disconnected</span>
+      </div>
+      <div class="user-info" style="text-align: right;">
+        <h3 id="navUserName">Loading...</h3>
+        <p id="navUserRole">Employee</p>
+      </div>
+      <button id="logoutBtn" class="logout-btn">Sign Out</button>
+    </div>
+  </header>
+
+  <!-- Main Wrapper -->
+  <main>
+    
+    <!-- 1. AUTHENTICATION SECTION -->
+    <section id="authSection" class="auth-container">
+      <div class="glass-panel auth-card">
+        <div class="auth-header">
+          <h2>Welcome Back</h2>
+          <p style="color: var(--text-secondary); font-size: 14px;">Sign in to manage your attendance securely</p>
+        </div>
+        
+        <!-- Auth View Selector Tabs -->
+        <div class="auth-tabs">
+          <button id="tabBtnLogin" class="auth-tab-btn active">Sign In</button>
+          <button id="tabBtnRegister" class="auth-tab-btn">Register</button>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <form id="loginForm" class="auth-form">
+          <div class="form-group">
+            <label for="loginUsername">Username</label>
+            <input type="text" id="loginUsername" class="form-input" placeholder="Enter username" required>
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" class="form-input" placeholder="Enter password" required>
+          </div>
+          <button type="submit" id="submitLoginBtn" class="submit-btn">Access Account</button>
+        </form>
+
+        <!-- REGISTER FORM (Initially Hidden) -->
+        <form id="registerForm" class="auth-form hidden">
+          <div class="form-group">
+            <label for="regName">Full Name</label>
+            <input type="text" id="regName" class="form-input" placeholder="e.g. Jane Doe">
+          </div>
+          <div class="form-group">
+            <label for="regUsername">Username</label>
+            <input type="text" id="regUsername" class="form-input" placeholder="Choose username">
+          </div>
+          <div class="form-group">
+            <label for="regEmail">Email Address</label>
+            <input type="email" id="regEmail" class="form-input" placeholder="name@company.com">
+          </div>
+          <div class="form-group">
+            <label for="regPassword">Password</label>
+            <input type="password" id="regPassword" class="form-input" placeholder="At least 6 characters">
+          </div>
+          <div class="form-group">
+            <label for="regRole">Account Role</label>
+            <select id="regRole">
+              <option value="employee">Employee</option>
+              <option value="admin">HR Administrator</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="regDept">Department</label>
+            <select id="regDept">
+              <option value="Engineering">Engineering</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Sales">Sales</option>
+              <option value="Human Resources">Human Resources</option>
+              <option value="Operations">Operations</option>
+            </select>
+          </div>
+          <button type="submit" id="submitRegisterBtn" class="submit-btn">Create Account</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 2. EMPLOYEE DASHBOARD PORTAL (Hidden Initially) -->
+    <section id="employeePortalSection" class="hidden">
+      <div class="dashboard-grid">
+        
+        <!-- Sidebar Column -->
+        <div class="sidebar-panel">
+          
+          <!-- User Profile Card -->
+          <div class="glass-panel user-badge-card">
+            <div id="empAvatar" class="avatar-large">E</div>
+            <div class="user-info">
+              <h3 id="empProfileName">Employee Name</h3>
+              <p id="empProfileDept">Engineering Department</p>
+              <span class="role-badge">Employee</span>
+            </div>
+          </div>
+          
+          <!-- Clock-in/Clock-out Panel -->
+          <div class="glass-panel">
+            <h3 style="margin-bottom: 12px; font-size: 18px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">Mark Attendance</h3>
+            <div id="liveClock" class="clock-display">00:00:00</div>
+            <div id="liveDate" class="date-display">Tuesday, 26 May 2026</div>
+            
+            <form id="markAttendanceForm">
+              <div class="form-group">
+                <label>Select Attendance Status</label>
+                <div class="attendance-mark-options">
+                  <div class="status-radio">
+                    <input type="radio" id="statusPresent" name="markStatus" value="Present" checked style="display:none;">
+                    <label for="statusPresent" class="status-label present">Present</label>
+                  </div>
+                  <div class="status-radio">
+                    <input type="radio" id="statusLate" name="markStatus" value="Late" style="display:none;">
+                    <label for="statusLate" class="status-label late">Late</label>
+                  </div>
+                  <div class="status-radio">
+                    <input type="radio" id="statusAbsent" name="markStatus" value="Absent" style="display:none;">
+                    <label for="statusAbsent" class="status-label absent">Absent</label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="clockInTime">Clock In Time</label>
+                <input type="time" id="clockInTime" class="form-input" value="09:00" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="clockOutTime">Clock Out Time</label>
+                <input type="time" id="clockOutTime" class="form-input" value="17:00">
+              </div>
+              
+              <button type="submit" id="markSubmitBtn" class="submit-btn">Submit Time Card</button>
+            </form>
+          </div>
+        </div>
+        
+        <!-- Content Column -->
+        <div class="content-panel">
+          
+          <!-- Quick Statistics -->
+          <div class="stats-row">
+            <div class="glass-panel stat-card">
+              <div class="stat-label">Attendance Rate</div>
+              <div id="empStatRate" class="stat-val success">0.0%</div>
+            </div>
+            <div class="glass-panel stat-card">
+              <div class="stat-label">Total Days Logged</div>
+              <div id="empStatDays" class="stat-val primary">0</div>
+            </div>
+            <div class="glass-panel stat-card">
+              <div class="stat-label">Late Arrivals</div>
+              <div id="empStatLates" class="stat-val warning">0</div>
+            </div>
+            <div class="glass-panel stat-card">
+              <div class="stat-label">Absences</div>
+              <div id="empStatAbsences" class="stat-val danger">0</div>
+            </div>
+          </div>
+          
+          <!-- Employee Log Table -->
+          <div class="glass-panel">
+            <h3 style="margin-bottom: 16px; font-size: 20px;">My Personal Attendance Log</h3>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Clock In</th>
+                    <th>Clock Out</th>
+                    <th>Status</th>
+                    <th>Hours Worked</th>
+                  </tr>
+                </thead>
+                <tbody id="employeeLogsBody">
+                  <tr>
+                    <td colspan="5" style="text-align: center; color: var(--text-muted);">No records found. Submit your first card!</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. HR ADMINISTRATOR PORTAL (Hidden Initially) -->
+    <section id="adminPortalSection" class="hidden">
+      
+      <!-- HR Tab Navigation Bar -->
+      <div class="admin-tab-nav">
+        <button class="admin-tab-btn active" data-tab="adminDashboardTab">📊 Dashboard & Live Feed</button>
+        <button class="admin-tab-btn" data-tab="adminTrendsTab">📈 Trend Analytics</button>
+        <button class="admin-tab-btn" data-tab="adminUploadTab">Company CSV</button>
+        <button class="admin-tab-btn" data-tab="adminSearchTab">🔍 Advanced Search</button>
+        <button class="admin-tab-btn" data-tab="adminAlertsTab">🚨 Smart Alerting <span id="alertBadgeCount" class="alert-badge-count hidden">0</span></button>
+        <button class="admin-tab-btn" data-tab="adminSettingsTab">Settings</button>
+        <button class="admin-tab-btn" data-tab="adminComplianceTab">⚖️ GDPR & Compliance</button>
+      </div>
+
+      <!-- ================= TAB 1: DASHBOARD & LIVE FEED ================= -->
+      <div id="adminDashboardTab" class="admin-tab-panel active">
+        <!-- HR Admin Tools Header (Search & Actions) -->
+        <div class="admin-tools-header" style="margin-bottom: 24px; display: flex; gap: 16px; align-items: center; margin-top:16px;">
+          <div class="search-container" style="flex: 1;">
+            <input type="text" id="adminGlobalSearch" class="form-input" placeholder="Search employees, departments, or logs..." style="width: 100%;">
+          </div>
+          <button id="adminGlobalRefreshBtn" class="submit-btn" style="width: auto; padding: 0 24px; background: var(--accent-cyan); color: var(--bg-dark);">Refresh All Data</button>
+        </div>
+
+        <!-- Statistics Dashboard Summary Row -->
+        <div class="stats-row" style="margin-bottom: 24px;">
+          <div class="glass-panel stat-card">
+            <div class="stat-label">Company Attendance Rate</div>
+            <div id="adminCompanyRate" class="stat-val success">0%</div>
+          </div>
+          <div class="glass-panel stat-card">
+            <div class="stat-label">Total Registered Employees</div>
+            <div id="adminTotalEmployees" class="stat-val primary">0</div>
+          </div>
+          <div class="glass-panel stat-card">
+            <div class="stat-label">Total Company Absences</div>
+            <div id="adminTotalAbsences" class="stat-val danger">0</div>
+          </div>
+          <div class="glass-panel stat-card">
+            <div class="stat-label">Total Company Late clock-ins</div>
+            <div id="adminTotalLates" class="stat-val warning">0</div>
+          </div>
+        </div>
+        
+        <div class="dashboard-grid admin-layout">
+          <!-- Sidebar: Employee Selector List & Admin Actions -->
+          <div class="sidebar-panel">
+            <!-- Employee Selector Card -->
+            <div class="glass-panel">
+              <h3 style="margin-bottom: 12px; font-size: 18px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">Select Employee to Analyze</h3>
+              <div id="adminEmployeeList" class="employee-select-list">
+                <div style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px 0;">Loading employees list...</div>
+              </div>
+            </div>
+            
+            <!-- Admin Manual Marker -->
+            <div class="glass-panel">
+              <h3 style="margin-bottom: 12px; font-size: 18px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">Log Manual Attendance</h3>
+              <form id="adminManualMarkForm">
+                <div class="form-group">
+                  <label for="adminSelectEmployee">Employee</label>
+                  <select id="adminSelectEmployee" required>
+                    <!-- Dynamically populated options -->
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="adminMarkDate">Date</label>
+                  <input type="date" id="adminMarkDate" class="form-input" required>
+                </div>
+                <div class="form-group">
+                  <label for="adminMarkStatus">Status</label>
+                  <select id="adminMarkStatus" required>
+                    <option value="Present">Present</option>
+                    <option value="Late">Late</option>
+                    <option value="Absent">Absent</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="adminMarkClockIn">Clock In</label>
+                  <input type="time" id="adminMarkClockIn" class="form-input" value="09:00" required>
+                </div>
+                <div class="form-group">
+                  <label for="adminMarkClockOut">Clock Out</label>
+                  <input type="time" id="adminMarkClockOut" class="form-input" value="17:00">
+                </div>
+                <button type="submit" id="adminMarkSubmitBtn" class="submit-btn">Save Record</button>
+              </form>
+            </div>
+            
+            <!-- Add New Employee / Domain -->
+            <div class="glass-panel">
+              <h3 style="margin-bottom: 12px; font-size: 18px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">Add Employee & Domain</h3>
+              <form id="adminAddEmployeeForm">
+                <div class="form-group">
+                  <label for="newEmpName">Full Name</label>
+                  <input type="text" id="newEmpName" class="form-input" placeholder="e.g. John Smith" required>
+                </div>
+                <div class="form-group">
+                  <label for="newEmpUsername">Username</label>
+                  <input type="text" id="newEmpUsername" class="form-input" placeholder="johnsmith123" required>
+                </div>
+                <div class="form-group">
+                  <label for="newEmpPassword">Password</label>
+                  <input type="password" id="newEmpPassword" class="form-input" placeholder="Default Password" required>
+                </div>
+                <div class="form-group">
+                  <label for="newEmpDeptSelect">Select Domain (Department)</label>
+                  <select id="newEmpDeptSelect" required>
+                    <option value="" disabled selected>Select a domain...</option>
+                    <option value="--NEW--">+ Add New Domain</option>
+                  </select>
+                </div>
+                <div class="form-group hidden" id="newDomainGroup">
+                  <label for="newEmpNewDept">New Domain Name</label>
+                  <input type="text" id="newEmpNewDept" class="form-input" placeholder="e.g. Data Science">
+                </div>
+                <button type="submit" class="submit-btn">Add Entry</button>
+              </form>
+            </div>
+          </div>
+          
+          <!-- Content Panel: Prediction, GenAI, and Tables -->
+          <div class="content-panel">
+            <!-- Predictive Analytics Grid -->
+            <div class="analytics-grid">
+              <!-- Machine Learning behavior card -->
+              <div class="glass-panel" id="mlPredictionPanel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                  <h3 style="font-size: 18px;">Attendance Prediction</h3>
+                  <span class="role-badge" style="background: rgba(99, 102, 241, 0.15); border-color: rgba(99, 102, 241, 0.3); color: #818cf8;">Random Forest</span>
+                </div>
+                
+                <div id="mlLoading" class="loading-container hidden">
+                  <div class="loader-spinner"></div>
+                  Evaluating scikit-learn model...
+                </div>
+                
+                <div id="mlResultContent">
+                  <p style="color: var(--text-secondary); font-size: 13px;">Classification Result for <span id="mlEmpName" style="color:white; font-weight:600;">-</span>:</p>
+                  <div id="mlCategoryBadge" class="prediction-category regular">Regular Attendee</div>
+                  
+                  <div style="margin-top: 10px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary);">
+                      <span>Model Confidence</span>
+                      <span id="mlConfidenceText" style="font-weight: 600; color: white;">0.0%</span>
+                    </div>
+                    <div class="confidence-bar-container">
+                      <div id="mlConfidenceBar" class="confidence-bar"></div>
+                    </div>
+                  </div>
+                  
+                  <p id="mlDescriptionText" style="font-size: 13px; color: var(--text-secondary); border-left: 2px solid var(--accent-cyan); padding-left: 10px; font-style: italic;">
+                    Select an employee to run predictions.
+                  </p>
+                  
+                  <table class="feature-table">
+                    <tbody>
+                      <tr>
+                        <td>Attendance Rate</td>
+                        <td id="featRate">-</td>
+                      </tr>
+                      <tr>
+                        <td>Total Absences</td>
+                        <td id="featAbsences">-</td>
+                      </tr>
+                      <tr>
+                        <td>Late Arrivals Count</td>
+                        <td id="featLates">-</td>
+                      </tr>
+                      <tr>
+                        <td>Avg Working Hours</td>
+                        <td id="featHours">-</td>
+                      </tr>
+                      <tr>
+                        <td>Monday/Friday Late Trend</td>
+                        <td id="featTrend">-</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              
+              <!-- Generative AI Insights panel -->
+              <div class="glass-panel" id="aiInsightsPanel">
+                <div class="genai-header">
+                  <h3 style="font-size: 18px;">GenAI HR Insights</h3>
+                  <span class="ai-pill">Google Gemini</span>
+                </div>
+                
+                <div id="aiLoading" class="loading-container hidden">
+                  <div class="loader-spinner"></div>
+                  Analyzing database metrics...
+                </div>
+                
+                <div id="aiResultContent">
+                  <div id="aiInsightsBox" class="insight-textbox">
+                    <div class="insight-placeholder">
+                      Select an employee from the panel to generate Generative AI insights automatically.
+                    </div>
+                  </div>
+                  
+                  <!-- Chat Assistant Interface -->
+                  <div class="ai-chat-box">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                      <span style="font-size:12px; color:var(--text-secondary); font-weight:600;">Interactive Assistant</span>
+                      <button type="button" id="clearChatBtn" class="logout-btn" style="padding: 2px 8px; font-size:10px; border-color:rgba(239, 68, 68, 0.4); color:var(--danger);" disabled>Clear History</button>
+                    </div>
+                    <div class="chat-history" id="chatHistoryBox">
+                      <div class="chat-bubble ai">
+                        Hello! Ask me any specific attendance questions about the selected employee's attendance log (e.g. "Summarize Alice's work habits").
+                      </div>
+                    </div>
+                    
+                    <div class="chat-input-row">
+                      <input type="text" id="chatInputText" class="form-input chat-input" placeholder="Type a question..." disabled>
+                      <button type="button" id="chatSendBtn" class="chat-send-btn" disabled>Send</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- WebSocket Live Activity Log Panel -->
+            <div class="glass-panel">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h3 style="font-size: 18px;">Live Activity Stream</h3>
+                <span class="role-badge" style="background: rgba(34, 197, 94, 0.15); border-color: rgba(34, 197, 94, 0.3); color: #4ade80;">Active Sync</span>
+              </div>
+              <div id="liveActivityFeed" class="live-activity-feed">
+                <div class="feed-placeholder">No live activity recorded in this session. Logs will stream here in real-time.</div>
+              </div>
+            </div>
+            
+            <!-- Master Attendance Logs Table -->
+            <div class="glass-panel">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="font-size: 20px;">Master Company Attendance Logs</h3>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Employee</th>
+                      <th>Department</th>
+                      <th>Date</th>
+                      <th>Clock In</th>
+                      <th>Clock Out</th>
+                      <th>Status</th>
+                      <th>Hours</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminLogsBody">
+                    <tr>
+                      <td colspan="7" style="text-align: center; color: var(--text-muted);">No logs found in the database. Seeding data...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 2: TREND ANALYTICS ================= -->
+      <div id="adminTrendsTab" class="admin-tab-panel">
+        <div style="margin-top: 16px; display:flex; flex-direction:column; gap:24px;">
+          <!-- Department summaries -->
+          <div class="glass-panel">
+            <h3 style="margin-bottom: 16px;">Department Attendance & Productivity Overview</h3>
+            <div id="deptComparisonContainer" class="dept-comparison-grid">
+              <div style="color:var(--text-muted); text-align:center; padding:20px 0;">Loading department trends...</div>
+            </div>
+          </div>
+
+          <!-- Forecast and Variance panel -->
+          <div class="analytics-grid">
+            <div class="glass-panel">
+              <h3 style="margin-bottom:16px;">7 & 30-Day Attendance Forecasts</h3>
+              <div id="trendForecastContent" class="trend-forecast-grid">
+                <div class="forecast-placeholder">Select an employee from the Dashboard list to build predictive forecasts.</div>
+              </div>
+            </div>
+
+            <!-- Seasonal patterns panel -->
+            <div class="glass-panel">
+              <h3 style="margin-bottom:16px;">Seasonal Absences & Weekly Lateness Clustering</h3>
+              <div id="seasonalPatternsContent" class="seasonal-patterns-grid">
+                <div class="forecast-placeholder">Select an employee from the Dashboard list to check day-of-week lateness.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 3: COMPANY CSV UPLOAD ================= -->
+      <div id="adminUploadTab" class="admin-tab-panel">
+        <div style="margin-top: 16px; display:flex; flex-direction:column; gap:24px;">
+          <div class="glass-panel">
+            <h3 style="margin-bottom:16px;">Upload Company Attendance CSV</h3>
+            <form id="companyCsvUploadForm">
+              <div class="search-form-row">
+                <div class="form-group" style="flex:2;">
+                  <label for="companyCsvFile">Company CSV File</label>
+                  <input type="file" id="companyCsvFile" class="form-input" accept=".csv" required>
+                </div>
+                <div class="form-group" style="flex:1; justify-content:flex-end;">
+                  <button type="submit" class="submit-btn" style="height:46px;">Label Attendance Status</button>
+                </div>
+              </div>
+            </form>
+            <div class="csv-help-grid">
+              <div class="csv-help-item">Required: Absences, LateCount, AvgHours, LeaveFrequency, AttendanceRate</div>
+              <div class="csv-help-item">Optional: EmployeeID, Name, Email, Department, TotalDays</div>
+              <a id="downloadCsvTemplateLink" class="csv-template-link" href="http://127.0.0.1:5000/api/company/csv-template">Download CSV template</a>
+            </div>
+          </div>
+
+          <div class="glass-panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <h3>Uploaded Company Labels</h3>
+              <span id="csvUploadSummary" class="role-badge">No file processed</span>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Employee</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Absences</th>
+                    <th>Late</th>
+                    <th>Rate</th>
+                    <th>ML Status</th>
+                    <th>Confidence</th>
+                  </tr>
+                </thead>
+                <tbody id="companyCsvResultsBody">
+                  <tr>
+                    <td colspan="8" style="text-align:center; color:var(--text-muted);">Upload a company CSV to classify attendance status.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 4: ADVANCED SEARCH ================= -->
+      <div id="adminSearchTab" class="admin-tab-panel">
+        <div style="margin-top: 16px; display:flex; flex-direction:column; gap:24px;">
+          <!-- DSL search parameters form -->
+          <div class="glass-panel">
+            <h3 style="margin-bottom: 16px;">Advanced Database Search (DSL Query Builder)</h3>
+            <form id="advSearchForm">
+              <div class="search-form-row">
+                <div class="form-group">
+                  <label for="advSearchQuery">Full Text Query (Search names/notes)</label>
+                  <input type="text" id="advSearchQuery" class="form-input" placeholder="e.g. Alice, clocked out late">
+                </div>
+                <div class="form-group">
+                  <label for="advSearchDept">Filter Department</label>
+                  <select id="advSearchDept">
+                    <option value="">All Departments</option>
+                    <option value="Engineering">Engineering</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Sales">Sales</option>
+                    <option value="Human Resources">Human Resources</option>
+                    <option value="Operations">Operations</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="advSearchRole">Filter Role</label>
+                  <select id="advSearchRole">
+                    <option value="">All Roles</option>
+                    <option value="employee">Employee</option>
+                    <option value="admin">HR Admin</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="search-form-row" style="margin-top: 12px;">
+                <div class="form-group">
+                  <label for="advSearchStatus">Filter Status / Prediction</label>
+                  <select id="advSearchStatus">
+                    <option value="">Any Status</option>
+                    <option value="low">Risk Level: Low</option>
+                    <option value="medium">Risk Level: Medium</option>
+                    <option value="high">Risk Level: High</option>
+                    <option value="critical">Risk Level: Critical</option>
+                    <option value="Regular Attendee">Prediction: Regular</option>
+                    <option value="At-Risk Employee">Prediction: At-Risk</option>
+                    <option value="Irregular Attendance">Prediction: Irregular</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="advSearchDateFrom">Date From</label>
+                  <input type="date" id="advSearchDateFrom" class="form-input">
+                </div>
+                <div class="form-group">
+                  <label for="advSearchDateTo">Date To</label>
+                  <input type="date" id="advSearchDateTo" class="form-input">
+                </div>
+              </div>
+
+              <div class="search-form-row" style="margin-top: 12px; align-items: flex-end;">
+                <div class="form-group" style="flex: 2;">
+                  <label for="advSearchSaveName">Save This Filter Criteria As (Optional)</label>
+                  <input type="text" id="advSearchSaveName" class="form-input" placeholder="e.g. Critical Absences Subgroup">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <button type="submit" class="submit-btn" style="margin-top:0; height:46px;">Execute Search</button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Saved filters container -->
+          <div class="glass-panel" id="savedFiltersCard">
+            <h3 style="margin-bottom: 12px; font-size: 16px;">Saved Filters</h3>
+            <div id="savedFiltersList" class="saved-filters-list">
+              <div style="font-style:italic; color:var(--text-muted); font-size:13px;">No saved filters. Create one above!</div>
+            </div>
+          </div>
+
+          <!-- Results table -->
+          <div class="glass-panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <h3>Filtered Database Search Results</h3>
+              <button id="exportCsvBtn" class="logout-btn" style="border-color:var(--accent-cyan); color:var(--accent-cyan); font-weight:600; padding:8px 16px;">📥 Export Matches to CSV</button>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Role</th>
+                    <th>Email</th>
+                    <th>ML Classification</th>
+                    <th>Risk Level</th>
+                    <th>Risk Score</th>
+                  </tr>
+                </thead>
+                <tbody id="advSearchResultsBody">
+                  <tr>
+                    <td colspan="7" style="text-align: center; color: var(--text-muted);">Adjust parameters and search above to display results.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 4: SMART ALERTING ================= -->
+      <div id="adminAlertsTab" class="admin-tab-panel">
+        <div style="margin-top: 16px; display:flex; flex-direction:column; gap:24px;">
+          <div class="analytics-grid">
+            <!-- Global Threshold settings -->
+            <div class="glass-panel">
+              <h3 style="margin-bottom:16px;">Global Smart Alert Rules Configuration</h3>
+              <form id="alertThresholdsForm">
+                <div class="form-group">
+                  <label for="threshLate">Late Arrival Threshold (minutes after 9 AM)</label>
+                  <input type="number" id="threshLate" class="form-input" min="1" required>
+                </div>
+                <div class="form-group">
+                  <label for="threshRisk">Absenteeism Risk Alert Level (%)</label>
+                  <input type="number" id="threshRisk" class="form-input" min="1" max="100" required>
+                </div>
+                <div class="form-group">
+                  <label for="threshAnomaly">Anomaly Score Alert Level (0-100)</label>
+                  <input type="number" id="threshAnomaly" class="form-input" min="1" max="100" required>
+                </div>
+                <div class="form-group">
+                  <label for="threshEscalation">Escalation Occurrences (triggers Critical alerts)</label>
+                  <input type="number" id="threshEscalation" class="form-input" min="1" required>
+                </div>
+                <button type="submit" class="submit-btn">Save Rule Settings</button>
+              </form>
+            </div>
+
+            <!-- Active alarms list -->
+            <div class="glass-panel" style="display:flex; flex-direction:column;">
+              <h3 style="margin-bottom:16px;">Active Unacknowledged Alerts Hub</h3>
+              <div id="activeAlertsList" class="alerts-list-container">
+                <div style="color:var(--text-muted); font-style:italic; text-align:center; padding:40px 0;">No active alerts. System is green!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 6: SETTINGS ================= -->
+      <div id="adminSettingsTab" class="admin-tab-panel">
+        <div style="margin-top: 16px; display:flex; flex-direction:column; gap:24px;">
+          <div class="analytics-grid">
+            <div class="glass-panel">
+              <h3 style="margin-bottom:16px;">EmailJS Warning Mail Settings</h3>
+              <form id="emailJsSettingsForm">
+                <div class="form-group">
+                  <label for="emailJsEnabled">EmailJS Enabled</label>
+                  <select id="emailJsEnabled">
+                    <option value="false">Disabled</option>
+                    <option value="true">Enabled</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="emailJsServiceId">Service ID</label>
+                  <input type="text" id="emailJsServiceId" class="form-input" placeholder="service_xxxxx">
+                </div>
+                <div class="form-group">
+                  <label for="emailJsTemplateId">Template ID</label>
+                  <input type="text" id="emailJsTemplateId" class="form-input" placeholder="template_xxxxx">
+                </div>
+                <div class="form-group">
+                  <label for="emailJsPublicKey">Public Key</label>
+                  <input type="text" id="emailJsPublicKey" class="form-input" placeholder="EmailJS public key">
+                </div>
+                <div class="form-group">
+                  <label for="emailJsReplyTo">Reply-To Email</label>
+                  <input type="email" id="emailJsReplyTo" class="form-input" placeholder="hr@company.com">
+                </div>
+                <button type="submit" class="submit-btn">Save Email Settings</button>
+              </form>
+            </div>
+
+            <div class="glass-panel">
+              <h3 style="margin-bottom:16px;">Send Attendance Warning</h3>
+              <div class="form-group">
+                <label for="warningEmployeeSelector">Employee</label>
+                <select id="warningEmployeeSelector" class="form-input"></select>
+              </div>
+              <div class="form-group">
+                <label for="warningMessageText">Warning Message</label>
+                <textarea id="warningMessageText" class="form-input textarea-input" placeholder="Leave blank to generate a warning from ML status."></textarea>
+              </div>
+              <button type="button" id="previewWarningEmailBtn" class="submit-btn">Preview Warning</button>
+              <button type="button" id="sendWarningEmailBtn" class="submit-btn warning-send-btn">Send Warning Mail</button>
+              <div id="warningEmailPreview" class="insight-textbox" style="margin-top:16px;">
+                <div class="insight-placeholder">Select an employee and preview the warning email.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 7: GDPR & COMPLIANCE ================= -->
+      <div id="adminComplianceTab" class="admin-tab-panel">
+        <div style="margin-top: 16px; display:flex; flex-direction:column; gap:24px;">
+          <div class="analytics-grid">
+            <!-- Portability & deletion actions -->
+            <div class="glass-panel">
+              <h3 style="margin-bottom: 16px;">GDPR Employee Portability & Data Erasure</h3>
+              <div class="form-group">
+                <label for="complianceEmployeeSelector">Select Target Employee Profile</label>
+                <select id="complianceEmployeeSelector" class="form-input">
+                  <!-- Filled dynamically -->
+                </select>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:12px; margin-top:20px;">
+                <button type="button" id="exportComplianceBtn" class="submit-btn" style="background:linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); font-weight:600;">
+                  📦 Export Full Data Archive (Portability JSON)
+                </button>
+                <button type="button" id="deleteComplianceBtn" class="submit-btn" style="background:linear-gradient(135deg, var(--danger) 0%, #dc2626 100%); font-weight:600;">
+                  ⚠️ Permanently Delete Employee (Right to be Forgotten)
+                </button>
+              </div>
+            </div>
+
+            <!-- retention configurations -->
+            <div class="glass-panel">
+              <h3 style="margin-bottom: 16px;">Audit Log Retention Management</h3>
+              <div class="form-group">
+                <label for="complianceRetentionYears">Log Retention Period (Years)</label>
+                <input type="number" id="complianceRetentionYears" class="form-input" value="7" min="1" required>
+              </div>
+              <button type="button" id="cleanupAuditBtn" class="submit-btn" style="margin-top:10px;">Trigger Compliance Purge</button>
+            </div>
+          </div>
+
+          <!-- Regulatory logs table -->
+          <div class="glass-panel">
+            <h3>GDPR Regulatory Security Audit Trail</h3>
+            <div class="table-responsive" style="margin-top: 16px;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Actor ID</th>
+                    <th>Action Type</th>
+                    <th>Resource Accessed / Modified</th>
+                    <th>Timestamp</th>
+                  </tr>
+                </thead>
+                <tbody id="complianceAuditBody">
+                  <tr>
+                    <td colspan="4" style="text-align:center; color:var(--text-muted);">Select an employee from the panel above to retrieve their logs history.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Application Logic -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="app_v3.js"></script>
+</body>
+</html>

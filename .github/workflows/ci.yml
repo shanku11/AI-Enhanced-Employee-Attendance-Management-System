@@ -1,0 +1,51 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r Backend/requirements.txt
+        pip install httpx pytest
+        
+    - name: Run Backend API Tests
+      run: |
+        # Run tests (make sure to set the PYTHONPATH to include the root)
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/Backend
+        python test_backend_api.py
+        
+    - name: Run Phase 3 AI Integration Tests
+      run: |
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/Backend
+        python test_phase3.py
+        
+    - name: Run Chat E2E Tests
+      run: |
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/Backend
+        python test_chat_e2e.py
+        
+  docker-build-test:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Build Docker images
+      run: docker-compose build
