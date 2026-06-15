@@ -18,8 +18,7 @@ COPY Backend ./Backend
 COPY ML ./ML
 
 # Make Backend importable
-ENV PYTHONPATH=/app
 
+ENV PYTHONPATH=/app/Backend
 EXPOSE 10000
-
-CMD ["sh", "-c", "uvicorn Backend.main:app --host 0.0.0.0 --port ${PORT:-10000}"]
+CMD ["uvicorn", "Backend.main:app", "--host", "0.0.0.0", "--port", "5000", "--app-dir", "/app/Backend"]
