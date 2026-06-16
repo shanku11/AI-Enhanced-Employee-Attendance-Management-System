@@ -1,5 +1,5 @@
 // FastAPI Backend Server Base URL
-const API_BASE_URL = "http://127.0.0.1:5000";
+const API_BASE_URL = "https://ai-enhanced-employee-attendance.onrender.com";
 
 // Active Session Variables
 let currentUser = null;
@@ -874,7 +874,7 @@ async function runPredictiveAnalytics(userId) {
     
   } catch (err) {
     console.error("Predictive flow error:", err);
-    alert("Analytics load error. Ensure your FastAPI Backend is running at http://127.0.0.1:5000");
+    alert("Analytics load error. Ensure your FastAPI Backend is running at https://ai-enhanced-employee-attendance.onrender.com");
   }
 }
 
